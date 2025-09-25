@@ -13,7 +13,8 @@ import {
   where,
   getDocs,
   orderBy,
-  limit
+  limit,
+  onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
 
 // Configuração do Firebase
@@ -205,6 +206,79 @@ export async function getAllLocations() {
   } catch (error) {
     console.error('❌ Erro ao buscar todas as localizações:', error)
     throw error
+  }
+}
+
+// Função para monitorar status do Firebase em tempo real
+export function monitorFirebaseStatus() {
+  console.log('🔍 Iniciando monitoramento do status do Firebase...')
+
+  try {
+    // Referência ao documento de status
+    const statusRef = doc(db, 'status', 'live-check')
+
+    // Configurar listener em tempo real
+    const unsubscribe = onSnapshot(
+      statusRef,
+      // Callback de sucesso
+      doc => {
+        const statusIndicator = document.getElementById(
+          'firebase-status-indicator'
+        )
+
+        if (!statusIndicator) {
+          console.warn('⚠️ Elemento firebase-status-indicator não encontrado')
+          return
+        }
+
+        if (doc.exists()) {
+          // Documento existe - conexão ativa
+          const message = doc.data().message || 'Conexão ativa'
+
+          // Atualizar indicador com sucesso
+          statusIndicator.textContent = message
+          statusIndicator.className =
+            'fixed bottom-4 right-4 bg-green-200 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+
+          console.log('✅ Status Firebase: Conexão ativa -', message)
+        } else {
+          // Documento não existe
+          statusIndicator.textContent = 'Documento de status não encontrado'
+          statusIndicator.className =
+            'fixed bottom-4 right-4 bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+
+          console.warn('⚠️ Status Firebase: Documento de status não encontrado')
+        }
+      },
+      // Callback de erro
+      error => {
+        console.error('❌ Erro no monitoramento do Firebase:', error)
+
+        const statusIndicator = document.getElementById(
+          'firebase-status-indicator'
+        )
+
+        if (statusIndicator) {
+          statusIndicator.textContent = 'Erro de conexão'
+          statusIndicator.className =
+            'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+        }
+
+        console.error('❌ Status Firebase: Erro de conexão -', error.message)
+      }
+    )
+
+    // Retornar função para cancelar o listener (opcional)
+    return unsubscribe
+  } catch (error) {
+    console.error('❌ Erro ao configurar monitoramento do Firebase:', error)
+
+    const statusIndicator = document.getElementById('firebase-status-indicator')
+    if (statusIndicator) {
+      statusIndicator.textContent = 'Erro de inicialização'
+      statusIndicator.className =
+        'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+    }
   }
 }
 

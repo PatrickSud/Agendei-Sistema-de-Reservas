@@ -4,7 +4,11 @@ import {
   setupAuthStateListener,
   setupLoginListeners
 } from './auth.js'
-import { db, checkFirestoreConnection } from './firestore.js'
+import {
+  db,
+  checkFirestoreConnection,
+  monitorFirebaseStatus
+} from './firestore.js'
 import { initializeUI, gerarMenuLateral } from './ui.js'
 
 // Função principal de inicialização
@@ -31,6 +35,9 @@ async function initializeApp() {
     // 4. Configurar listeners de autenticação
     setupAuthStateListener()
     setupLoginListeners()
+
+    // 5. Iniciar monitoramento do status do Firebase
+    monitorFirebaseStatus()
 
     console.log('✅ Aplicação inicializada com sucesso!')
   } catch (error) {
