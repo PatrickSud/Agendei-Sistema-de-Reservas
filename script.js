@@ -12,7 +12,7 @@ import {
 import { initializeUI, gerarMenuLateral } from './ui.js'
 
 // Função principal de inicialização
-async function initializeApp() {
+async function initializeAgendeiApp() {
   try {
     console.log('🚀 Inicializando aplicação Agendei...')
 
@@ -48,7 +48,7 @@ async function initializeApp() {
 // Aguardar o Firebase estar pronto
 function waitForFirebase() {
   if (window.firebaseInitialized) {
-    initializeApp()
+    initializeAgendeiApp()
   } else {
     setTimeout(waitForFirebase, 100)
   }
@@ -196,4 +196,4 @@ window.verificarFirebase = function () {
 }
 
 // Exportar funções principais para uso externo
-export { initializeApp, checkFirebaseConnection }
+export { initializeAgendeiApp }
