@@ -9,7 +9,12 @@ import {
   checkFirestoreConnection,
   monitorFirebaseStatus
 } from './firestore.js'
-import { initializeUI, gerarMenuLateral } from './ui.js'
+import {
+  initializeUI,
+  gerarMenuLateral,
+  configurarNavegacaoMenu,
+  MapsTo
+} from './ui.js'
 
 // Função principal de inicialização
 async function initializeAgendeiApp() {
@@ -181,8 +186,9 @@ export async function checkFirebaseConnection() {
   }
 }
 
-// Disponibilizar função globalmente para uso no console
+// Disponibilizar funções globalmente para uso no console
 window.checkFirebaseConnection = checkFirebaseConnection
+window.MapsTo = MapsTo
 
 // Função para verificar se o Firebase está configurado
 window.verificarFirebase = function () {

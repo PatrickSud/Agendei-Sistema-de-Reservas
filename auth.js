@@ -162,7 +162,7 @@ export async function handleLogin(user) {
     // Carregar dashboard padrão após login
     const defaultPageId =
       role === 'administrador' ? 'dashboard-administrador' : 'dashboard-usuario'
-    MapsTo(defaultPageId)
+    await MapsTo(defaultPageId)
 
     console.log('✅ Login processado com sucesso!')
 
