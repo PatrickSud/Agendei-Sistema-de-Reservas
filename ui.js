@@ -763,9 +763,7 @@ export function renderMyReservationsPage(reservations) {
     
     <div class="mt-8 text-center">
       <p class="text-gray-500 text-sm">
-        Total de ${reservations.length} reserva${
-    reservations.length === 1 ? '' : 's'
-  }
+        Total de ${reservations.length} reserva${reservations.length === 1 ? '' : 's'}
       </p>
     </div>
   `

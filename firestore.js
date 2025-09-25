@@ -237,15 +237,13 @@ export function monitorFirebaseStatus() {
 
           // Atualizar indicador com sucesso
           statusIndicator.textContent = message
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-green-200 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+          statusIndicator.className = 'fixed bottom-4 right-4 bg-green-200 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
 
           console.log('✅ Status Firebase: Conexão ativa -', message)
         } else {
           // Documento não existe
           statusIndicator.textContent = 'Documento de status não encontrado'
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+          statusIndicator.className = 'fixed bottom-4 right-4 bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
 
           console.warn('⚠️ Status Firebase: Documento de status não encontrado')
         }
@@ -260,8 +258,7 @@ export function monitorFirebaseStatus() {
 
         if (statusIndicator) {
           statusIndicator.textContent = 'Erro de conexão'
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+          statusIndicator.className = 'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
         }
 
         console.error('❌ Status Firebase: Erro de conexão -', error.message)
@@ -276,8 +273,7 @@ export function monitorFirebaseStatus() {
     const statusIndicator = document.getElementById('firebase-status-indicator')
     if (statusIndicator) {
       statusIndicator.textContent = 'Erro de inicialização'
-      statusIndicator.className =
-        'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+      statusIndicator.className = 'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
     }
   }
 }
