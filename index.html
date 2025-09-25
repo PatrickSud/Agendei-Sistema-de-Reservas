@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agendei - Sistema de Reservas</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  </head>
+  <body class="bg-slate-100 min-h-screen flex items-center justify-center">
+    <div id="login-container" class="w-full max-w-md">
+      <div class="bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-2xl font-bold text-gray-800 text-center mb-8">
+          Agendei - Sistema de Reservas
+        </h1>
+
+        <form class="space-y-6" id="loginForm">
+          <div class="space-y-2">
+            <label for="email" class="block text-sm font-medium text-gray-700"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="email"
+              name="email"
+              placeholder="Digite seu email"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+            />
+          </div>
+
+          <div class="space-y-2">
+            <label for="senha" class="block text-sm font-medium text-gray-700"
+              >Senha</label
+            >
+            <input
+              type="password"
+              id="senha"
+              name="senha"
+              placeholder="Digite sua senha"
+              required
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 transition duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Entrar
+          </button>
+        </form>
+
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-gray-300"></div>
+          </div>
+          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-white text-gray-500">ou</span>
+          </div>
+        </div>
+
+        <button
+          class="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-50 transition duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center justify-center space-x-2"
+          id="btnGoogle"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          <span>Login com Google</span>
+        </button>
+
+        <div class="mt-6 text-center space-y-2">
+          <a
+            href="#"
+            class="text-sm text-blue-600 hover:text-blue-800 transition duration-200"
+            >Esqueceu sua senha?</a
+          >
+          <p class="text-sm text-gray-600">
+            Não tem uma conta?
+            <a
+              href="#"
+              class="text-blue-600 hover:text-blue-800 font-medium transition duration-200"
+              >Cadastre-se</a
+            >
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aplicação Principal (oculta por padrão) -->
+    <div id="app" class="hidden flex h-screen">
+      <!-- Sidebar -->
+      <nav
+        id="sidebar"
+        class="w-64 bg-gray-800 text-white flex flex-col hidden md:flex"
+      >
+        <div class="p-6 border-b border-gray-700">
+          <h2 class="text-xl font-bold">Agendei</h2>
+        </div>
+        <ul class="flex-1 py-4">
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200 bg-gray-700 text-white"
+            >
+              Dashboard
+            </a>
+          </li>
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200"
+            >
+              Reservas
+            </a>
+          </li>
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200"
+            >
+              Clientes
+            </a>
+          </li>
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200"
+            >
+              Serviços
+            </a>
+          </li>
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200"
+            >
+              Relatórios
+            </a>
+          </li>
+          <li class="mb-2">
+            <a
+              href="#"
+              class="block px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white transition duration-200"
+            >
+              Configurações
+            </a>
+          </li>
+        </ul>
+        <div class="p-6 border-t border-gray-700">
+          <button
+            id="btnLogout"
+            class="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-200"
+          >
+            Sair
+          </button>
+        </div>
+      </nav>
+
+      <!-- Área de conteúdo principal -->
+      <main id="content" class="flex-1 bg-gray-50 flex flex-col">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 px-8 py-4">
+          <div class="flex justify-between items-center">
+            <h1 class="text-2xl font-semibold text-gray-800">Dashboard</h1>
+            <div class="flex items-center space-x-4">
+              <span id="userEmail" class="text-sm text-gray-600"
+                >usuario@email.com</span
+              >
+              <img
+                id="userPhoto"
+                src=""
+                alt="Foto do usuário"
+                class="w-8 h-8 rounded-full bg-gray-300"
+              />
+            </div>
+          </div>
+        </header>
+
+        <!-- Conteúdo principal -->
+        <div class="flex-1 p-8">
+          <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">
+              Bem-vindo ao Agendei!
+            </h2>
+            <p class="text-gray-600">Sistema de gerenciamento de reservas</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+            >
+              <h3 class="text-sm font-medium text-gray-500 mb-2">
+                Reservas Hoje
+              </h3>
+              <span class="text-3xl font-bold text-blue-600">12</span>
+            </div>
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+            >
+              <h3 class="text-sm font-medium text-gray-500 mb-2">
+                Clientes Ativos
+              </h3>
+              <span class="text-3xl font-bold text-green-600">45</span>
+            </div>
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+            >
+              <h3 class="text-sm font-medium text-gray-500 mb-2">Serviços</h3>
+              <span class="text-3xl font-bold text-purple-600">8</span>
+            </div>
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200"
+            >
+              <h3 class="text-sm font-medium text-gray-500 mb-2">
+                Receita Mensal
+              </h3>
+              <span class="text-3xl font-bold text-orange-600">R$ 2.500</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Indicador de Status do Firebase -->
+    <div
+      id="firebase-status-indicator"
+      class="fixed bottom-4 right-4 bg-gray-200 text-gray-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300"
+    >
+      Verificando conexão...
+    </div>
+
+    <!-- Templates das Páginas -->
+    <div id="page-templates" class="hidden">
+      <!-- Template do Dashboard de Usuário -->
+      <div id="dashboard-usuario-template">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Olá, [Nome do Usuário]!
+          </h1>
+          <p class="text-gray-600">
+            Gerencie suas reservas e explore nossos espaços
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <!-- Card Nova Reserva -->
+          <div
+            class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+          >
+            <div
+              class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              Nova Reserva
+            </h3>
+            <p class="text-sm text-gray-600">Criar uma nova reserva</p>
+          </div>
+
+          <!-- Card Minhas Reservas -->
+          <div
+            class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+          >
+            <div
+              class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              Minhas Reservas
+            </h3>
+            <p class="text-sm text-gray-600">Visualizar reservas ativas</p>
+          </div>
+
+          <!-- Card Localidades -->
+          <div
+            class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+          >
+            <div
+              class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-purple-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                ></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              Localidades
+            </h3>
+            <p class="text-sm text-gray-600">Explorar espaços disponíveis</p>
+          </div>
+
+          <!-- Card Reservas Recentes -->
+          <div
+            class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+          >
+            <div
+              class="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-4"
+            >
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">
+              Reservas Recentes
+            </h3>
+            <p class="text-sm text-gray-600">Ver histórico de reservas</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Template da Nova Reserva -->
+      <div id="nova-reserva-template">
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">Nova Reserva</h1>
+          <p class="text-gray-600">
+            Preencha os dados abaixo para criar uma nova reserva
+          </p>
+        </div>
+
+        <div class="max-w-2xl">
+          <form id="formNovaReserva" class="space-y-6">
+            <!-- Seletor de Localidade -->
+            <div>
+              <label
+                for="localidade"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Localidade *
+              </label>
+              <select
+                id="localidade"
+                name="localidade"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+              >
+                <option value="">Selecione uma localidade...</option>
+              </select>
+            </div>
+
+            <!-- Campo de Data -->
+            <div>
+              <label
+                for="data"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Data *
+              </label>
+              <input
+                type="text"
+                id="data"
+                name="data"
+                placeholder="Selecione a data..."
+                required
+                readonly
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 bg-white cursor-pointer"
+              />
+            </div>
+
+            <!-- Campos de Horário -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label
+                  for="horaInicio"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Hora de Início *
+                </label>
+                <input
+                  type="time"
+                  id="horaInicio"
+                  name="horaInicio"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+              </div>
+
+              <div>
+                <label
+                  for="horaFim"
+                  class="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Hora de Fim *
+                </label>
+                <input
+                  type="time"
+                  id="horaFim"
+                  name="horaFim"
+                  required
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                />
+              </div>
+            </div>
+
+            <!-- Campo de Observações (opcional) -->
+            <div>
+              <label
+                for="observacoes"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Observações
+              </label>
+              <textarea
+                id="observacoes"
+                name="observacoes"
+                rows="4"
+                placeholder="Adicione observações sobre sua reserva (opcional)..."
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 resize-none"
+              ></textarea>
+            </div>
+
+            <!-- Botões de Ação -->
+            <div class="flex space-x-4 pt-6">
+              <button
+                type="submit"
+                class="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition duration-200 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                Criar Reserva
+              </button>
+              <button
+                type="button"
+                id="btnCancelarReserva"
+                class="flex-1 bg-gray-300 text-gray-700 py-3 px-6 rounded-lg font-medium hover:bg-gray-400 transition duration-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Template do Dashboard do Administrador -->
+      <div id="dashboard-administrador-template">
+        <!-- Grade de Estatísticas -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-800 mb-2">
+            Dashboard Administrativo
+          </h1>
+          <p class="text-gray-600">
+            Visão geral do sistema e métricas importantes
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <!-- Card Espaços Ativos -->
+          <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">
+              Espaços Ativos
+            </h3>
+            <span class="text-3xl font-bold text-blue-600">24</span>
+            <p class="text-xs text-gray-500 mt-1">+2 esta semana</p>
+          </div>
+
+          <!-- Card Reservas Hoje -->
+          <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">
+              Reservas Hoje
+            </h3>
+            <span class="text-3xl font-bold text-green-600">18</span>
+            <p class="text-xs text-gray-500 mt-1">+5 vs ontem</p>
+          </div>
+
+          <!-- Card Taxa de Ocupação -->
+          <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">
+              Taxa de Ocupação
+            </h3>
+            <span class="text-3xl font-bold text-purple-600">75%</span>
+            <p class="text-xs text-gray-500 mt-1">+3% esta semana</p>
+          </div>
+
+          <!-- Card Check-ins Hoje -->
+          <div class="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+            <h3 class="text-sm font-medium text-gray-500 mb-2">
+              Check-ins Hoje
+            </h3>
+            <span class="text-3xl font-bold text-orange-600">12</span>
+            <p class="text-xs text-gray-500 mt-1">+2 vs ontem</p>
+          </div>
+        </div>
+
+        <!-- Cards de Ação (mesmos do usuário) -->
+        <div class="mb-8">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-6">
+            Ações Rápidas
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Card Nova Reserva -->
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+            >
+              <div
+                class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-lg mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-blue-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                Nova Reserva
+              </h3>
+              <p class="text-sm text-gray-600">Criar uma nova reserva</p>
+            </div>
+
+            <!-- Card Minhas Reservas -->
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+            >
+              <div
+                class="flex items-center justify-center w-12 h-12 bg-green-100 rounded-lg mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-green-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                Minhas Reservas
+              </h3>
+              <p class="text-sm text-gray-600">Visualizar reservas ativas</p>
+            </div>
+
+            <!-- Card Localidades -->
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+            >
+              <div
+                class="flex items-center justify-center w-12 h-12 bg-purple-100 rounded-lg mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-purple-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                Localidades
+              </h3>
+              <p class="text-sm text-gray-600">Explorar espaços disponíveis</p>
+            </div>
+
+            <!-- Card Reservas Recentes -->
+            <div
+              class="bg-white rounded-lg shadow-sm p-6 border border-gray-200 hover:shadow-md transition duration-200 cursor-pointer"
+            >
+              <div
+                class="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-lg mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  ></path>
+                </svg>
+              </div>
+              <h3 class="text-lg font-semibold text-gray-800 mb-2">
+                Reservas Recentes
+              </h3>
+              <p class="text-sm text-gray-600">Ver histórico de reservas</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
+      import {
+        getAuth,
+        signInWithEmailAndPassword,
+        signInWithPopup,
+        GoogleAuthProvider,
+        onAuthStateChanged,
+        signOut
+      } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js'
+      import {
+        getFirestore,
+        doc,
+        getDoc
+      } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
+
+      // Configuração do Firebase
+      const firebaseConfig = {
+        apiKey: 'AIzaSyANAle4qNIzqGjfLe7smp_AIfHaZlRditg',
+        authDomain: 'agendei-sistema-de-reservas.firebaseapp.com',
+        projectId: 'agendei-sistema-de-reservas',
+        storageBucket: 'agendei-sistema-de-reservas.firebasestorage.app',
+        messagingSenderId: '1086088433735',
+        appId: '1:1086088433735:web:da8fedbde47173dcbc2162',
+        measurementId: 'G-TLYFG33G4W'
+      }
+
+      // Inicializar Firebase
+      const app = initializeApp(firebaseConfig)
+      const auth = getAuth(app)
+      const db = getFirestore(app)
+      const googleProvider = new GoogleAuthProvider()
+
+      // Disponibilizar globalmente para uso no script.js
+      window.firebaseApp = app
+      window.firebaseAuth = auth
+      window.firebaseDb = db
+      window.googleProvider = googleProvider
+      window.signInWithEmailAndPassword = signInWithEmailAndPassword
+      window.signInWithPopup = signInWithPopup
+      window.onAuthStateChanged = onAuthStateChanged
+      window.signOut = signOut
+      window.doc = doc
+      window.getDoc = getDoc
+
+      // Sinalizar que o Firebase foi inicializado
+      window.firebaseInitialized = true
+
+      console.log('Firebase SDK carregado e inicializado!')
+    </script>
+  </body>
+</html>
