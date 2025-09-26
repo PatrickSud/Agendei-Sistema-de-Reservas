@@ -275,7 +275,6 @@ function setupLocationForm() {
         floor: formData.get('floor'),
         description: formData.get('description'),
         capacity: parseInt(formData.get('capacity')),
-        hourlyRate: parseFloat(formData.get('hourlyRate')),
         image: formData.get('image'),
         features: formData.get('features')
           ? formData
@@ -365,11 +364,6 @@ export function renderAdminLocationsPage(locations) {
           } pessoas</div>
         </td>
         <td class="px-6 py-4 whitespace-nowrap">
-          <div class="text-sm text-gray-900">R$ ${
-            location.hourlyRate?.toFixed(2) || '0.00'
-          }/h</div>
-        </td>
-        <td class="px-6 py-4 whitespace-nowrap">
           <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${statusClass}">
             ${statusText}
           </span>
@@ -424,9 +418,6 @@ export function renderAdminLocationsPage(locations) {
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Capacidade
-              </th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Preço/Hora
               </th>
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Status
@@ -510,37 +501,19 @@ export function renderAdminLocationsPage(locations) {
               ></textarea>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="locationCapacity" class="block text-sm font-medium text-gray-700 mb-1">
-                  Capacidade *
-                </label>
-                <input 
-                  type="number" 
-                  id="locationCapacity" 
-                  name="capacity" 
-                  required
-                  min="1"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Número de pessoas"
-                />
-              </div>
-              
-              <div>
-                <label for="locationRate" class="block text-sm font-medium text-gray-700 mb-1">
-                  Preço por Hora *
-                </label>
-                <input 
-                  type="number" 
-                  id="locationRate" 
-                  name="hourlyRate" 
-                  required
-                  min="0"
-                  step="0.01"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="0.00"
-                />
-              </div>
+            <div>
+              <label for="locationCapacity" class="block text-sm font-medium text-gray-700 mb-1">
+                Capacidade *
+              </label>
+              <input 
+                type="number" 
+                id="locationCapacity" 
+                name="capacity" 
+                required
+                min="1"
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="Número de pessoas"
+              />
             </div>
             
             <div>
@@ -1096,20 +1069,6 @@ export function renderLocationsPage(locations) {
                 : ''
             }
             
-            ${
-              location.hourlyRate
-                ? `
-              <div class="flex items-center text-gray-600">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
-                </svg>
-                <span class="text-sm">R$ ${location.hourlyRate.toFixed(
-                  2
-                )}/hora</span>
-              </div>
-            `
-                : ''
-            }
           </div>
           
           ${
