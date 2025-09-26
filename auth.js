@@ -155,8 +155,16 @@ export async function handleLogin(user) {
     // Mostrar aplicação
     showApp()
 
-    // Configurar navegação e carregar dashboard padrão
-    const { configurarNavegacaoMenu, MapsTo } = await import('./ui.js')
+    // Gerar menu lateral baseado no role
+    const { gerarMenuLateral, configurarNavegacaoMenu, MapsTo } = await import(
+      './ui.js'
+    )
+    const sidebar = document.getElementById('sidebar')
+    if (sidebar) {
+      sidebar.innerHTML = gerarMenuLateral(role)
+    }
+
+    // Configurar navegação
     configurarNavegacaoMenu(role)
 
     // Carregar dashboard padrão após login

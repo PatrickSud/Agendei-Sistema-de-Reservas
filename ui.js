@@ -1324,6 +1324,7 @@ export async function MapsTo(pageId) {
 
 // Função para configurar navegação do menu
 export function configurarNavegacaoMenu(role) {
+  console.log('🔧 Configurando navegação do menu para role:', role)
   const sidebar = document.getElementById('sidebar')
 
   if (!sidebar) {
@@ -1331,18 +1332,28 @@ export function configurarNavegacaoMenu(role) {
     return
   }
 
+  console.log('✅ Sidebar encontrada, configurando event listeners...')
+
   // Adicionar um único event listener na sidebar
   sidebar.addEventListener('click', function (e) {
+    console.log('🖱️ Clique detectado na sidebar:', e.target)
+
     // Verificar se o clique foi em um link do menu
     const menuLink = e.target.closest('a[data-page]')
 
-    if (!menuLink) return
+    if (!menuLink) {
+      console.log('❌ Clique não foi em um link do menu')
+      return
+    }
+
+    console.log('✅ Clique em link do menu:', menuLink)
 
     // Prevenir ação padrão do link
     e.preventDefault()
 
     // Obter o valor do atributo data-page
     const pageId = menuLink.getAttribute('data-page')
+    console.log('📄 PageId:', pageId)
 
     if (!pageId) {
       console.error('❌ Atributo data-page não encontrado')
@@ -1367,6 +1378,7 @@ export function configurarNavegacaoMenu(role) {
     }
 
     // Carregar a página usando MapsTo (assíncrono)
+    console.log('🚀 Chamando MapsTo para página:', pageId)
     MapsTo(pageId).catch(error => {
       console.error('❌ Erro ao carregar página:', error)
     })
