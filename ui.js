@@ -1142,11 +1142,11 @@ export async function MapsTo(pageId) {
   if (pageId === 'dashboard-usuario' || pageId === 'dashboard-administrador') {
     const templateId = pageId + '-template'
     const template = document.getElementById(templateId)
-    
+
     if (template) {
       contentArea.innerHTML = template.innerHTML
       console.log(`✅ Template ${pageId} carregado com sucesso`)
-      
+
       // Adicionar event listeners para os cards clicáveis
       setupDashboardCardListeners()
       return
@@ -1163,28 +1163,21 @@ export async function MapsTo(pageId) {
     }
   }
 
-  // Verificar se é uma página especial que precisa carregar dados dinamicamente
+  // Verificar se é a página de localidades
   if (pageId === 'localidades') {
     try {
-      // Importar função do firestore dinamicamente para evitar dependência circular
-      const { getAvailableLocations } = await import('./firestore.js')
+      // Carregar template de localidades
+      const template = document.getElementById('locations-template')
+      if (template) {
+        contentArea.innerHTML = template.innerHTML
+        console.log('✅ Template de localidades carregado')
 
-      // Mostrar loading
-      contentArea.innerHTML = `
-        <div class="flex items-center justify-center py-12">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span class="ml-3 text-gray-600">Carregando localidades...</span>
-        </div>
-      `
-
-      // Buscar localidades
-      const locations = await getAvailableLocations()
-
-      // Renderizar página de localidades
-      contentArea.innerHTML = renderLocationsPage(locations)
-
-      console.log(`✅ Página ${pageId} carregada com sucesso`)
-      return
+        // Carregar e renderizar localidades
+        await loadLocationsPage()
+        return
+      } else {
+        throw new Error('Template de localidades não encontrado')
+      }
     } catch (error) {
       console.error(`❌ Erro ao carregar ${pageId}:`, error)
       contentArea.innerHTML = `
@@ -1397,12 +1390,130 @@ export function addRequiredStyles() {
   document.head.appendChild(style)
 }
 
+// Função para carregar página de localidades
+async function loadLocationsPage() {
+  try {
+    console.log('🔄 Carregando localidades...')
+    
+    // Importar função do firestore
+    const { getLocations } = await import('./firestore.js')
+    
+    // Buscar localidades
+    const locations = await getLocations()
+    
+    // Renderizar localidades
+    renderLocations(locations)
+    
+    console.log('✅ Localidades carregadas com sucesso')
+  } catch (error) {
+    console.error('❌ Erro ao carregar localidades:', error)
+    showLocationsError()
+  }
+}
+
+// Função para renderizar localidades
+function renderLocations(locations) {
+  const loadingElement = document.getElementById('locations-loading')
+  const gridElement = document.getElementById('locations-grid')
+  const emptyElement = document.getElementById('locations-empty')
+  
+  // Ocultar loading
+  if (loadingElement) loadingElement.classList.add('hidden')
+  
+  if (locations.length === 0) {
+    // Mostrar estado vazio
+    if (emptyElement) emptyElement.classList.remove('hidden')
+    if (gridElement) gridElement.classList.add('hidden')
+    return
+  }
+  
+  // Renderizar cards de localidades
+  const locationsHTML = locations.map(location => {
+    const features = location.features || []
+    const featuresHTML = features.map(feature => 
+      `<span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${feature}</span>`
+    ).join('')
+    
+    return `
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-200">
+        ${location.image ? 
+          `<img src="${location.image}" alt="${location.name}" class="w-full h-48 object-cover">` :
+          `<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-4xl">🏢</div>`
+        }
+        
+        <div class="p-6">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <h3 class="text-lg font-semibold text-gray-900 mb-1">${location.name}</h3>
+              ${location.floor ? `<p class="text-sm text-gray-500">${location.floor}</p>` : ''}
+            </div>
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              Disponível
+            </span>
+          </div>
+          
+          ${location.description ? `<p class="text-gray-600 text-sm mb-3">${location.description}</p>` : ''}
+          
+          <div class="flex items-center text-gray-600 mb-3">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span class="text-sm">Capacidade: ${location.capacity} pessoas</span>
+          </div>
+          
+          ${features.length > 0 ? `
+            <div class="mb-4">
+              <h4 class="text-sm font-medium text-gray-700 mb-2">Características:</h4>
+              <div class="flex flex-wrap">
+                ${featuresHTML}
+              </div>
+            </div>
+          ` : ''}
+          
+          <button 
+            onclick="openReservationModal('${location.id}', '${location.name}', ${location.capacity})"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-medium"
+          >
+            Reservar
+          </button>
+        </div>
+      </div>
+    `
+  }).join('')
+  
+  if (gridElement) {
+    gridElement.innerHTML = locationsHTML
+    gridElement.classList.remove('hidden')
+  }
+  
+  if (emptyElement) emptyElement.classList.add('hidden')
+}
+
+// Função para mostrar erro ao carregar localidades
+function showLocationsError() {
+  const loadingElement = document.getElementById('locations-loading')
+  const gridElement = document.getElementById('locations-grid')
+  const emptyElement = document.getElementById('locations-empty')
+  
+  if (loadingElement) loadingElement.classList.add('hidden')
+  if (gridElement) gridElement.classList.add('hidden')
+  
+  if (emptyElement) {
+    emptyElement.innerHTML = `
+      <div class="text-red-400 text-6xl mb-4">❌</div>
+      <h2 class="text-2xl font-semibold text-gray-600 mb-2">Erro ao carregar localidades</h2>
+      <p class="text-gray-500">Não foi possível carregar as localidades no momento.</p>
+    `
+    emptyElement.classList.remove('hidden')
+  }
+}
+
 // Função para configurar event listeners dos cards do dashboard
 function setupDashboardCardListeners() {
   const cards = document.querySelectorAll('[data-page]')
-  
+
   cards.forEach(card => {
-    card.addEventListener('click', function(e) {
+    card.addEventListener('click', function (e) {
       e.preventDefault()
       const pageId = this.getAttribute('data-page')
       if (pageId) {
@@ -1411,7 +1522,7 @@ function setupDashboardCardListeners() {
       }
     })
   })
-  
+
   console.log(`✅ ${cards.length} cards do dashboard configurados`)
 }
 
@@ -1423,5 +1534,168 @@ export function initializeUI() {
   // Iniciar animação de entrada
   animarEntrada()
 
+  // Configurar event listeners do modal de reserva
+  setupReservationModalListeners()
+
   console.log('✅ UI inicializada com sucesso!')
+}
+
+// Função para configurar event listeners do modal de reserva
+function setupReservationModalListeners() {
+  // Event listener para fechar modal
+  const closeBtn = document.getElementById('closeReservationModal')
+  const cancelBtn = document.getElementById('cancelReservation')
+  const modal = document.getElementById('reservationModal')
+  
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeReservationModal)
+  }
+  
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', closeReservationModal)
+  }
+  
+  // Fechar modal ao clicar fora dele
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) {
+        closeReservationModal()
+      }
+    })
+  }
+  
+  // Event listener para o formulário
+  const form = document.getElementById('reservationForm')
+  if (form) {
+    form.addEventListener('submit', handleReservationSubmit)
+  }
+}
+
+// Função para abrir modal de reserva
+window.openReservationModal = function(locationId, locationName, maxCapacity) {
+  const modal = document.getElementById('reservationModal')
+  const locationInfo = document.getElementById('selectedLocationInfo')
+  const capacityInput = document.getElementById('reservationCapacity')
+  
+  if (!modal) return
+  
+  // Preencher informações da localidade
+  if (locationInfo) {
+    locationInfo.innerHTML = `
+      <div class="font-medium">${locationName}</div>
+      <div class="text-xs text-gray-500">Capacidade máxima: ${maxCapacity} pessoas</div>
+    `
+  }
+  
+  // Definir capacidade máxima
+  if (capacityInput) {
+    capacityInput.max = maxCapacity
+    capacityInput.placeholder = `Máximo: ${maxCapacity} pessoas`
+  }
+  
+  // Definir data mínima como hoje
+  const dateInput = document.getElementById('reservationDate')
+  if (dateInput) {
+    const today = new Date().toISOString().split('T')[0]
+    dateInput.min = today
+    dateInput.value = today
+  }
+  
+  // Limpar formulário
+  const form = document.getElementById('reservationForm')
+  if (form) {
+    form.reset()
+    // Manter a data de hoje
+    if (dateInput) dateInput.value = today
+  }
+  
+  // Armazenar dados da localidade para uso posterior
+  modal.dataset.locationId = locationId
+  modal.dataset.locationName = locationName
+  modal.dataset.maxCapacity = maxCapacity
+  
+  // Mostrar modal
+  modal.classList.remove('hidden')
+}
+
+// Função para fechar modal de reserva
+function closeReservationModal() {
+  const modal = document.getElementById('reservationModal')
+  if (modal) {
+    modal.classList.add('hidden')
+  }
+}
+
+// Função para lidar com o envio do formulário de reserva
+async function handleReservationSubmit(e) {
+  e.preventDefault()
+  
+  try {
+    const form = e.target
+    const formData = new FormData(form)
+    const modal = document.getElementById('reservationModal')
+    
+    if (!modal) return
+    
+    // Obter dados da localidade
+    const locationId = modal.dataset.locationId
+    const locationName = modal.dataset.locationName
+    
+    // Validar horários
+    const startTime = formData.get('startTime')
+    const endTime = formData.get('endTime')
+    
+    if (startTime >= endTime) {
+      mostrarMensagem('A hora de fim deve ser posterior à hora de início.', 'erro')
+      return
+    }
+    
+    // Preparar dados da reserva
+    const reservationData = {
+      locationId: locationId,
+      locationName: locationName,
+      userId: window.currentUser?.uid || 'anonymous',
+      userEmail: window.currentUser?.email || 'anonymous@example.com',
+      date: formData.get('date'),
+      startTime: startTime,
+      endTime: endTime,
+      capacity: parseInt(formData.get('capacity')),
+      notes: formData.get('notes') || '',
+      status: 'confirmed'
+    }
+    
+    // Mostrar loading
+    const submitBtn = form.querySelector('button[type="submit"]')
+    const originalText = submitBtn.textContent
+    submitBtn.disabled = true
+    submitBtn.textContent = 'Criando reserva...'
+    
+    // Importar função do firestore
+    const { createReservation } = await import('./firestore.js')
+    
+    // Criar reserva
+    const reservationId = await createReservation(reservationData)
+    
+    // Sucesso
+    mostrarMensagem('Reserva criada com sucesso!', 'sucesso')
+    
+    // Fechar modal
+    closeReservationModal()
+    
+    // Redirecionar para minhas reservas após 2 segundos
+    setTimeout(() => {
+      MapsTo('minhas-reservas')
+    }, 2000)
+    
+  } catch (error) {
+    console.error('❌ Erro ao criar reserva:', error)
+    mostrarMensagem('Erro ao criar reserva. Tente novamente.', 'erro')
+  } finally {
+    // Restaurar botão
+    const submitBtn = form.querySelector('button[type="submit"]')
+    if (submitBtn) {
+      submitBtn.disabled = false
+      submitBtn.textContent = 'Confirmar Reserva'
+    }
+  }
 }

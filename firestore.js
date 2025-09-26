@@ -144,6 +144,52 @@ export async function checkFirebaseConnection() {
   }
 }
 
+// Função para buscar todas as localidades ativas
+export async function getLocations() {
+  try {
+    const locationsRef = collection(db, 'locations')
+    const q = query(
+      locationsRef,
+      where('isActive', '==', true),
+      orderBy('createdAt', 'desc')
+    )
+    const querySnapshot = await getDocs(q)
+
+    const locations = []
+    querySnapshot.forEach(doc => {
+      locations.push({
+        id: doc.id,
+        ...doc.data()
+      })
+    })
+
+    console.log(`📍 ${locations.length} localidades ativas encontradas`)
+    return locations
+  } catch (error) {
+    console.error('❌ Erro ao buscar localidades:', error)
+    throw error
+  }
+}
+
+// Função para criar uma nova reserva
+export async function createReservation(reservationData) {
+  try {
+    const reservationsRef = collection(db, 'reservations')
+    const reservationDoc = await addDoc(reservationsRef, {
+      ...reservationData,
+      status: 'confirmed',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    })
+
+    console.log('✅ Reserva criada com sucesso:', reservationDoc.id)
+    return reservationDoc.id
+  } catch (error) {
+    console.error('❌ Erro ao criar reserva:', error)
+    throw error
+  }
+}
+
 // Função para obter dados do usuário
 export async function getUserData(userId) {
   try {
