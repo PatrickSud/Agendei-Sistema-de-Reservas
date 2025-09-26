@@ -1138,6 +1138,31 @@ export async function MapsTo(pageId) {
     return
   }
 
+  // Verificar se é um template de dashboard
+  if (pageId === 'dashboard-usuario' || pageId === 'dashboard-administrador') {
+    const templateId = pageId + '-template'
+    const template = document.getElementById(templateId)
+    
+    if (template) {
+      contentArea.innerHTML = template.innerHTML
+      console.log(`✅ Template ${pageId} carregado com sucesso`)
+      
+      // Adicionar event listeners para os cards clicáveis
+      setupDashboardCardListeners()
+      return
+    } else {
+      console.error(`❌ Template ${templateId} não encontrado`)
+      contentArea.innerHTML = `
+        <div class="text-center py-12">
+          <div class="text-red-400 text-6xl mb-4">❌</div>
+          <h2 class="text-2xl font-semibold text-gray-600 mb-2">Template não encontrado</h2>
+          <p class="text-gray-500">O template ${pageId} não foi encontrado.</p>
+        </div>
+      `
+      return
+    }
+  }
+
   // Verificar se é uma página especial que precisa carregar dados dinamicamente
   if (pageId === 'localidades') {
     try {
@@ -1370,6 +1395,24 @@ export function addRequiredStyles() {
     }
   `
   document.head.appendChild(style)
+}
+
+// Função para configurar event listeners dos cards do dashboard
+function setupDashboardCardListeners() {
+  const cards = document.querySelectorAll('[data-page]')
+  
+  cards.forEach(card => {
+    card.addEventListener('click', function(e) {
+      e.preventDefault()
+      const pageId = this.getAttribute('data-page')
+      if (pageId) {
+        console.log(`🔄 Navegando para: ${pageId}`)
+        MapsTo(pageId)
+      }
+    })
+  })
+  
+  console.log(`✅ ${cards.length} cards do dashboard configurados`)
 }
 
 // Função para inicializar a UI

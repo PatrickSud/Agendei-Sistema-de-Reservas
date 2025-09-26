@@ -11,10 +11,7 @@ import {
   checkFirebaseConnection,
   monitorFirebaseStatus
 } from './firestore.js'
-import {
-  initializeUI,
-  MapsTo
-} from './ui.js'
+import { initializeUI, MapsTo } from './ui.js'
 
 /**
  * Função principal de inicialização da aplicação
@@ -41,8 +38,8 @@ async function initializeAgendeiApp() {
     initializeUI()
 
     // 4. Configurar sistema de autenticação
-    setupAuthStateListener()  // Observa mudanças no estado de login
-    setupLoginListeners()     // Configura eventos de login/logout
+    setupAuthStateListener() // Observa mudanças no estado de login
+    setupLoginListeners() // Configura eventos de login/logout
 
     // 5. Iniciar monitoramento em tempo real do Firebase
     monitorFirebaseStatus()
@@ -73,8 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
   console.log('📄 DOM carregado, aguardando Firebase...')
   waitForFirebase()
 })
-
-
 
 // ========================================
 // FUNÇÕES GLOBAIS PARA DEBUGGING
