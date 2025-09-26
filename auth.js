@@ -1,5 +1,4 @@
 // Módulo de Autenticação
-import { db, getUserData } from './firestore.js'
 import {
   showLoginPage,
   showApp,
@@ -142,6 +141,9 @@ export async function handleLogout() {
 export async function handleLogin(user) {
   try {
     console.log('🔄 Buscando dados do usuário no Firestore...')
+
+    // Importar função do firestore dinamicamente
+    const { getUserData } = await import('./firestore.js')
 
     // Buscar dados do usuário no Firestore
     const userData = await getUserData(user.uid)

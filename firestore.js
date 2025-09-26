@@ -1,7 +1,5 @@
 // Módulo do Firestore
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js'
 import {
-  getFirestore,
   doc,
   getDoc,
   setDoc,
@@ -17,20 +15,23 @@ import {
   onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
 
-// Configuração do Firebase
-const firebaseConfig = {
-  apiKey: 'AIzaSyANAle4qNIzqGjfLe7smp_AIfHaZlRditg',
-  authDomain: 'agendei-sistema-de-reservas.firebaseapp.com',
-  projectId: 'agendei-sistema-de-reservas',
-  storageBucket: 'agendei-sistema-de-reservas.firebasestorage.app',
-  messagingSenderId: '1086088433735',
-  appId: '1:1086088433735:web:da8fedbde47173dcbc2162',
-  measurementId: 'G-TLYFG33G4W'
+// Usar a instância global do Firebase inicializada no index.html
+let db = null
+
+// Função para obter a instância do Firestore
+function getDb() {
+  if (!db) {
+    if (typeof window.firebaseDb !== 'undefined') {
+      db = window.firebaseDb
+    } else {
+      throw new Error('Firebase não foi inicializado. Aguarde a inicialização.')
+    }
+  }
+  return db
 }
 
-// Inicializar Firebase
-const app = initializeApp(firebaseConfig)
-export const db = getFirestore(app)
+// Exportar db para compatibilidade
+export { getDb as db }
 
 console.log('Firestore inicializado com sucesso!')
 
@@ -71,7 +72,7 @@ export async function checkFirebaseConnection() {
     }
 
     // Tentar ler um documento de teste (não precisa existir)
-    const testDocRef = doc(db, 'test-connection', 'test-doc')
+    const testDocRef = doc(getDb(), 'test-connection', 'test-doc')
     const testDocSnap = await getDoc(testDocRef)
 
     console.log('✅ Conexão com Firestore OK')
@@ -147,7 +148,7 @@ export async function checkFirebaseConnection() {
 // Função para buscar todas as localidades ativas
 export async function getLocations() {
   try {
-    const locationsRef = collection(db, 'locations')
+    const locationsRef = collection(getDb(), 'locations')
     const q = query(
       locationsRef,
       where('isActive', '==', true),
@@ -174,7 +175,7 @@ export async function getLocations() {
 // Função para criar uma nova reserva
 export async function createReservation(reservationData) {
   try {
-    const reservationsRef = collection(db, 'reservations')
+    const reservationsRef = collection(getDb(), 'reservations')
     const reservationDoc = await addDoc(reservationsRef, {
       ...reservationData,
       status: 'confirmed',
@@ -193,7 +194,7 @@ export async function createReservation(reservationData) {
 // Função para obter dados do usuário
 export async function getUserData(userId) {
   try {
-    const userDocRef = doc(db, 'users', userId)
+    const userDocRef = doc(getDb(), 'users', userId)
     const userDocSnap = await getDoc(userDocRef)
 
     if (userDocSnap.exists()) {
@@ -213,7 +214,7 @@ export async function getUserData(userId) {
 // Função para criar/atualizar dados do usuário
 export async function setUserData(userId, userData) {
   try {
-    const userDocRef = doc(db, 'users', userId)
+    const userDocRef = doc(getDb(), 'users', userId)
     await setDoc(userDocRef, userData, { merge: true })
     console.log('✅ Dados do usuário salvos com sucesso')
   } catch (error) {
@@ -225,7 +226,7 @@ export async function setUserData(userId, userData) {
 // Função para obter reservas do usuário
 export async function getUserReservations(userId) {
   try {
-    const reservationsRef = collection(db, 'reservations')
+    const reservationsRef = collection(getDb(), 'reservations')
     const q = query(
       reservationsRef,
       where('userId', '==', userId),
@@ -250,11 +251,10 @@ export async function getUserReservations(userId) {
   }
 }
 
-
 // Função para atualizar uma reserva
 export async function updateReservation(reservationId, updateData) {
   try {
-    const reservationRef = doc(db, 'reservations', reservationId)
+    const reservationRef = doc(getDb(), 'reservations', reservationId)
     await updateDoc(reservationRef, updateData)
 
     console.log('✅ Reserva atualizada com sucesso')
@@ -267,7 +267,7 @@ export async function updateReservation(reservationId, updateData) {
 // Função para obter todas as reservas (admin)
 export async function getAllReservations() {
   try {
-    const reservationsRef = collection(db, 'reservations')
+    const reservationsRef = collection(getDb(), 'reservations')
     const q = query(reservationsRef, orderBy('createdAt', 'desc'))
 
     const querySnapshot = await getDocs(q)
@@ -291,7 +291,7 @@ export async function getAllReservations() {
 // Função para atualizar uma localização
 export async function updateLocation(locationId, updateData) {
   try {
-    const locationRef = doc(db, 'locations', locationId)
+    const locationRef = doc(getDb(), 'locations', locationId)
     await updateDoc(locationRef, {
       ...updateData,
       updatedAt: new Date()
@@ -307,7 +307,7 @@ export async function updateLocation(locationId, updateData) {
 // Função para excluir uma localização
 export async function deleteLocation(locationId) {
   try {
-    const locationRef = doc(db, 'locations', locationId)
+    const locationRef = doc(getDb(), 'locations', locationId)
     await deleteDoc(locationRef)
 
     console.log('✅ Localização excluída com sucesso')
@@ -320,7 +320,7 @@ export async function deleteLocation(locationId) {
 // Função para obter todas as localizações (admin)
 export async function getAllLocations() {
   try {
-    const locationsRef = collection(db, 'locations')
+    const locationsRef = collection(getDb(), 'locations')
     const q = query(locationsRef, orderBy('createdAt', 'desc'))
 
     const querySnapshot = await getDocs(q)
@@ -346,62 +346,44 @@ export function monitorFirebaseStatus() {
   console.log('🔍 Iniciando monitoramento do status do Firebase...')
 
   try {
-    // Referência ao documento de status
-    const statusRef = doc(db, 'status', 'live-check')
+    const statusIndicator = document.getElementById('firebase-status-indicator')
 
-    // Configurar listener em tempo real
-    const unsubscribe = onSnapshot(
-      statusRef,
-      // Callback de sucesso
-      doc => {
-        const statusIndicator = document.getElementById(
-          'firebase-status-indicator'
-        )
+    if (!statusIndicator) {
+      console.warn('⚠️ Elemento firebase-status-indicator não encontrado')
+      return
+    }
 
-        if (!statusIndicator) {
-          console.warn('⚠️ Elemento firebase-status-indicator não encontrado')
-          return
-        }
+    // Verificar se o Firebase está inicializado
+    if (
+      typeof window.firebaseAuth === 'undefined' ||
+      typeof window.firebaseDb === 'undefined'
+    ) {
+      statusIndicator.textContent = 'Firebase não inicializado'
+      statusIndicator.className =
+        'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+      console.error('❌ Firebase não foi inicializado corretamente')
+      return
+    }
 
-        if (doc.exists()) {
-          // Documento existe - conexão ativa
-          const message = doc.data().message || 'Conexão ativa'
+    // Fazer uma verificação simples da conexão
+    const testRef = doc(getDb(), 'test', 'connection')
 
-          // Atualizar indicador com sucesso
-          statusIndicator.textContent = message
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-green-200 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
-
-          console.log('✅ Status Firebase: Conexão ativa -', message)
-        } else {
-          // Documento não existe
-          statusIndicator.textContent = 'Documento de status não encontrado'
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-yellow-200 text-yellow-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
-
-          console.warn('⚠️ Status Firebase: Documento de status não encontrado')
-        }
-      },
-      // Callback de erro
-      error => {
-        console.error('❌ Erro no monitoramento do Firebase:', error)
-
-        const statusIndicator = document.getElementById(
-          'firebase-status-indicator'
-        )
-
-        if (statusIndicator) {
-          statusIndicator.textContent = 'Erro de conexão'
-          statusIndicator.className =
-            'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
-        }
-
+    // Tentar ler um documento de teste (não precisa existir)
+    getDoc(testRef)
+      .then(() => {
+        // Sucesso - Firebase está funcionando
+        statusIndicator.textContent = 'Conexão ativa'
+        statusIndicator.className =
+          'fixed bottom-4 right-4 bg-green-200 text-green-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
+        console.log('✅ Status Firebase: Conexão ativa')
+      })
+      .catch(error => {
+        // Erro - Firebase não está funcionando
+        statusIndicator.textContent = 'Erro de conexão'
+        statusIndicator.className =
+          'fixed bottom-4 right-4 bg-red-300 text-red-800 px-3 py-2 rounded-lg text-sm font-medium shadow-lg z-50 transition-all duration-300'
         console.error('❌ Status Firebase: Erro de conexão -', error.message)
-      }
-    )
-
-    // Retornar função para cancelar o listener (opcional)
-    return unsubscribe
+      })
   } catch (error) {
     console.error('❌ Erro ao configurar monitoramento do Firebase:', error)
 
@@ -414,13 +396,12 @@ export function monitorFirebaseStatus() {
   }
 }
 
-
 // Função para obter espaços/locações (já existe acima, removendo duplicata)
 
 // Função para criar uma nova localização
 export async function createLocation(locationData) {
   try {
-    const locationsRef = collection(db, 'locations')
+    const locationsRef = collection(getDb(), 'locations')
     const docRef = await addDoc(locationsRef, {
       ...locationData,
       createdAt: new Date(),
@@ -590,7 +571,7 @@ export async function checkFirestoreConnection() {
     console.log('🔍 Verificando conexão com Firestore...')
 
     // Tentar ler um documento de teste
-    const testDocRef = doc(db, 'test-connection', 'test-doc')
+    const testDocRef = doc(getDb(), 'test-connection', 'test-doc')
     const testDocSnap = await getDoc(testDocRef)
 
     console.log('✅ Conexão com Firestore OK')
