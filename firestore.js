@@ -250,30 +250,6 @@ export async function getUserReservations(userId) {
   }
 }
 
-// Função para criar uma nova reserva
-export async function createReservation(reservationData) {
-  try {
-    const reservationsRef = collection(db, 'reservations')
-    const docRef = await addDoc(reservationsRef, {
-      userId: reservationData.userId,
-      locationId: reservationData.locationId,
-      locationName: reservationData.locationName,
-      startTime: reservationData.startTime,
-      endTime: reservationData.endTime,
-      date: reservationData.date,
-      observations: reservationData.observations || '',
-      status: 'pending',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    })
-
-    console.log('✅ Reserva criada com sucesso:', docRef.id)
-    return docRef.id
-  } catch (error) {
-    console.error('❌ Erro ao criar reserva:', error)
-    throw error
-  }
-}
 
 // Função para atualizar uma reserva
 export async function updateReservation(reservationId, updateData) {
@@ -438,53 +414,8 @@ export function monitorFirebaseStatus() {
   }
 }
 
-// Função para obter espaços/locações disponíveis
-export async function getAvailableLocations() {
-  try {
-    const locationsRef = collection(db, 'locations')
-    const q = query(locationsRef, where('isActive', '==', true))
 
-    const querySnapshot = await getDocs(q)
-    const locations = []
-
-    querySnapshot.forEach(doc => {
-      locations.push({
-        id: doc.id,
-        ...doc.data()
-      })
-    })
-
-    console.log(`📍 ${locations.length} localizações disponíveis encontradas`)
-    return locations
-  } catch (error) {
-    console.error('❌ Erro ao buscar localizações disponíveis:', error)
-    throw error
-  }
-}
-
-// Função para obter espaços/locações
-export async function getLocations() {
-  try {
-    const locationsRef = collection(db, 'locations')
-    const q = query(locationsRef, where('active', '==', true))
-
-    const querySnapshot = await getDocs(q)
-    const locations = []
-
-    querySnapshot.forEach(doc => {
-      locations.push({
-        id: doc.id,
-        ...doc.data()
-      })
-    })
-
-    console.log(`📍 ${locations.length} localizações encontradas`)
-    return locations
-  } catch (error) {
-    console.error('❌ Erro ao buscar localizações:', error)
-    throw error
-  }
-}
+// Função para obter espaços/locações (já existe acima, removendo duplicata)
 
 // Função para criar uma nova localização
 export async function createLocation(locationData) {
@@ -493,7 +424,7 @@ export async function createLocation(locationData) {
     const docRef = await addDoc(locationsRef, {
       ...locationData,
       createdAt: new Date(),
-      active: true
+      isActive: true
     })
 
     console.log('✅ Localização criada com sucesso:', docRef.id)

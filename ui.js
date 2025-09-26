@@ -820,10 +820,10 @@ export async function renderNewReservationPage() {
 
   try {
     // Importar função do firestore dinamicamente
-    const { getAvailableLocations } = await import('./firestore.js')
+    const { getLocations } = await import('./firestore.js')
 
     // Buscar localidades disponíveis
-    const locations = await getAvailableLocations()
+    const locations = await getLocations()
 
     // Encontrar a área de conteúdo principal
     const contentArea = document.querySelector('#content .flex-1')
@@ -1394,16 +1394,16 @@ export function addRequiredStyles() {
 async function loadLocationsPage() {
   try {
     console.log('🔄 Carregando localidades...')
-    
+
     // Importar função do firestore
     const { getLocations } = await import('./firestore.js')
-    
+
     // Buscar localidades
     const locations = await getLocations()
-    
+
     // Renderizar localidades
     renderLocations(locations)
-    
+
     console.log('✅ Localidades carregadas com sucesso')
   } catch (error) {
     console.error('❌ Erro ao carregar localidades:', error)
@@ -1416,62 +1416,85 @@ function renderLocations(locations) {
   const loadingElement = document.getElementById('locations-loading')
   const gridElement = document.getElementById('locations-grid')
   const emptyElement = document.getElementById('locations-empty')
-  
+
   // Ocultar loading
   if (loadingElement) loadingElement.classList.add('hidden')
-  
+
   if (locations.length === 0) {
     // Mostrar estado vazio
     if (emptyElement) emptyElement.classList.remove('hidden')
     if (gridElement) gridElement.classList.add('hidden')
     return
   }
-  
+
   // Renderizar cards de localidades
-  const locationsHTML = locations.map(location => {
-    const features = location.features || []
-    const featuresHTML = features.map(feature => 
-      `<span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${feature}</span>`
-    ).join('')
-    
-    return `
+  const locationsHTML = locations
+    .map(location => {
+      const features = location.features || []
+      const featuresHTML = features
+        .map(
+          feature =>
+            `<span class="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full mr-1 mb-1">${feature}</span>`
+        )
+        .join('')
+
+      return `
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition duration-200">
-        ${location.image ? 
-          `<img src="${location.image}" alt="${location.name}" class="w-full h-48 object-cover">` :
-          `<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-4xl">🏢</div>`
+        ${
+          location.image
+            ? `<img src="${location.image}" alt="${location.name}" class="w-full h-48 object-cover">`
+            : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-4xl">🏢</div>`
         }
         
         <div class="p-6">
           <div class="flex items-start justify-between mb-3">
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 mb-1">${location.name}</h3>
-              ${location.floor ? `<p class="text-sm text-gray-500">${location.floor}</p>` : ''}
+              <h3 class="text-lg font-semibold text-gray-900 mb-1">${
+                location.name
+              }</h3>
+              ${
+                location.floor
+                  ? `<p class="text-sm text-gray-500">${location.floor}</p>`
+                  : ''
+              }
             </div>
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
               Disponível
             </span>
           </div>
           
-          ${location.description ? `<p class="text-gray-600 text-sm mb-3">${location.description}</p>` : ''}
+          ${
+            location.description
+              ? `<p class="text-gray-600 text-sm mb-3">${location.description}</p>`
+              : ''
+          }
           
           <div class="flex items-center text-gray-600 mb-3">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
             </svg>
-            <span class="text-sm">Capacidade: ${location.capacity} pessoas</span>
+            <span class="text-sm">Capacidade: ${
+              location.capacity
+            } pessoas</span>
           </div>
           
-          ${features.length > 0 ? `
+          ${
+            features.length > 0
+              ? `
             <div class="mb-4">
               <h4 class="text-sm font-medium text-gray-700 mb-2">Características:</h4>
               <div class="flex flex-wrap">
                 ${featuresHTML}
               </div>
             </div>
-          ` : ''}
+          `
+              : ''
+          }
           
           <button 
-            onclick="openReservationModal('${location.id}', '${location.name}', ${location.capacity})"
+            onclick="openReservationModal('${location.id}', '${
+        location.name
+      }', ${location.capacity})"
             class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-200 text-sm font-medium"
           >
             Reservar
@@ -1479,13 +1502,14 @@ function renderLocations(locations) {
         </div>
       </div>
     `
-  }).join('')
-  
+    })
+    .join('')
+
   if (gridElement) {
     gridElement.innerHTML = locationsHTML
     gridElement.classList.remove('hidden')
   }
-  
+
   if (emptyElement) emptyElement.classList.add('hidden')
 }
 
@@ -1494,10 +1518,10 @@ function showLocationsError() {
   const loadingElement = document.getElementById('locations-loading')
   const gridElement = document.getElementById('locations-grid')
   const emptyElement = document.getElementById('locations-empty')
-  
+
   if (loadingElement) loadingElement.classList.add('hidden')
   if (gridElement) gridElement.classList.add('hidden')
-  
+
   if (emptyElement) {
     emptyElement.innerHTML = `
       <div class="text-red-400 text-6xl mb-4">❌</div>
@@ -1546,24 +1570,24 @@ function setupReservationModalListeners() {
   const closeBtn = document.getElementById('closeReservationModal')
   const cancelBtn = document.getElementById('cancelReservation')
   const modal = document.getElementById('reservationModal')
-  
+
   if (closeBtn) {
     closeBtn.addEventListener('click', closeReservationModal)
   }
-  
+
   if (cancelBtn) {
     cancelBtn.addEventListener('click', closeReservationModal)
   }
-  
+
   // Fechar modal ao clicar fora dele
   if (modal) {
-    modal.addEventListener('click', function(e) {
+    modal.addEventListener('click', function (e) {
       if (e.target === modal) {
         closeReservationModal()
       }
     })
   }
-  
+
   // Event listener para o formulário
   const form = document.getElementById('reservationForm')
   if (form) {
@@ -1572,13 +1596,13 @@ function setupReservationModalListeners() {
 }
 
 // Função para abrir modal de reserva
-window.openReservationModal = function(locationId, locationName, maxCapacity) {
+window.openReservationModal = function (locationId, locationName, maxCapacity) {
   const modal = document.getElementById('reservationModal')
   const locationInfo = document.getElementById('selectedLocationInfo')
   const capacityInput = document.getElementById('reservationCapacity')
-  
+
   if (!modal) return
-  
+
   // Preencher informações da localidade
   if (locationInfo) {
     locationInfo.innerHTML = `
@@ -1586,13 +1610,13 @@ window.openReservationModal = function(locationId, locationName, maxCapacity) {
       <div class="text-xs text-gray-500">Capacidade máxima: ${maxCapacity} pessoas</div>
     `
   }
-  
+
   // Definir capacidade máxima
   if (capacityInput) {
     capacityInput.max = maxCapacity
     capacityInput.placeholder = `Máximo: ${maxCapacity} pessoas`
   }
-  
+
   // Definir data mínima como hoje
   const dateInput = document.getElementById('reservationDate')
   if (dateInput) {
@@ -1600,7 +1624,7 @@ window.openReservationModal = function(locationId, locationName, maxCapacity) {
     dateInput.min = today
     dateInput.value = today
   }
-  
+
   // Limpar formulário
   const form = document.getElementById('reservationForm')
   if (form) {
@@ -1608,12 +1632,12 @@ window.openReservationModal = function(locationId, locationName, maxCapacity) {
     // Manter a data de hoje
     if (dateInput) dateInput.value = today
   }
-  
+
   // Armazenar dados da localidade para uso posterior
   modal.dataset.locationId = locationId
   modal.dataset.locationName = locationName
   modal.dataset.maxCapacity = maxCapacity
-  
+
   // Mostrar modal
   modal.classList.remove('hidden')
 }
@@ -1629,27 +1653,30 @@ function closeReservationModal() {
 // Função para lidar com o envio do formulário de reserva
 async function handleReservationSubmit(e) {
   e.preventDefault()
-  
+
   try {
     const form = e.target
     const formData = new FormData(form)
     const modal = document.getElementById('reservationModal')
-    
+
     if (!modal) return
-    
+
     // Obter dados da localidade
     const locationId = modal.dataset.locationId
     const locationName = modal.dataset.locationName
-    
+
     // Validar horários
     const startTime = formData.get('startTime')
     const endTime = formData.get('endTime')
-    
+
     if (startTime >= endTime) {
-      mostrarMensagem('A hora de fim deve ser posterior à hora de início.', 'erro')
+      mostrarMensagem(
+        'A hora de fim deve ser posterior à hora de início.',
+        'erro'
+      )
       return
     }
-    
+
     // Preparar dados da reserva
     const reservationData = {
       locationId: locationId,
@@ -1663,30 +1690,29 @@ async function handleReservationSubmit(e) {
       notes: formData.get('notes') || '',
       status: 'confirmed'
     }
-    
+
     // Mostrar loading
     const submitBtn = form.querySelector('button[type="submit"]')
     const originalText = submitBtn.textContent
     submitBtn.disabled = true
     submitBtn.textContent = 'Criando reserva...'
-    
+
     // Importar função do firestore
     const { createReservation } = await import('./firestore.js')
-    
+
     // Criar reserva
     const reservationId = await createReservation(reservationData)
-    
+
     // Sucesso
     mostrarMensagem('Reserva criada com sucesso!', 'sucesso')
-    
+
     // Fechar modal
     closeReservationModal()
-    
+
     // Redirecionar para minhas reservas após 2 segundos
     setTimeout(() => {
       MapsTo('minhas-reservas')
     }, 2000)
-    
   } catch (error) {
     console.error('❌ Erro ao criar reserva:', error)
     mostrarMensagem('Erro ao criar reserva. Tente novamente.', 'erro')
